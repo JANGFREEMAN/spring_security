@@ -1,0 +1,80 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/security
+		http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <!--不过滤的资源路径-->
+    <http pattern="/**/*.js" security="none"/>
+    <http pattern="/login" security="none" />
+
+    <!--1基本配置（自定义登录页面、用户权限写在配置）-->
+    <!--<http auto-config="true" use-expressions="true">-->
+        <!--<intercept-url pattern="/**" access="hasRole('USER')" />-->
+        <!--<form-login  login-processing-url="/j_security_login"  username-parameter="username" password-parameter="password" login-page="/login" default-target-url="/index" always-use-default-target="true"  authentication-success-handler-ref="authenicationSuccessHandler" authentication-failure-handler-ref="authenicationFailHandler"/>-->
+        <!--<csrf disabled="true"/>-->
+        <!--<logout />-->
+    <!--</http>-->
+    <!--<authentication-manager>-->
+        <!--<authentication-provider>-->
+            <!--<user-service>-->
+                <!--<user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />-->
+                <!--<user name="bob" password="bobspassword" authorities="ROLE_USER" />-->
+            <!--</user-service>-->
+        <!--</authentication-provider>-->
+    <!--</authentication-manager>-->
+    <!--<beans:bean id="authenicationSuccessHandler" class = "com.springdemo.security.handler.MyAuthenicationSuccessHandler"></beans:bean>-->
+    <!--<beans:bean id="authenicationFailHandler" class = "com.springdemo.security.handler.MyAuthenicationFailHandler"></beans:bean>-->
+
+
+    <!--2.自定义登录页面，自定义用户验证管理-->
+    <!--<http auto-config="true" use-expressions="true">-->
+        <!--<intercept-url pattern="/**" access="hasRole('ROLE_ADMIN')" />-->
+        <!--<form-login  login-processing-url="/j_security_login"  username-parameter="username" password-parameter="password" login-page="/login" default-target-url="/index" always-use-default-target="true"  authentication-success-handler-ref="authenicationSuccessHandler" authentication-failure-handler-ref="authenicationFailHandler"/>-->
+        <!--<csrf disabled="true"/>-->
+        <!--<logout />-->
+    <!--</http>-->
+    <!--<authentication-manager>-->
+        <!--<authentication-provider user-service-ref="myUserDetailService">-->
+        <!--</authentication-provider>-->
+    <!--</authentication-manager>-->
+    <!--<beans:bean id = "myUserDetailService" class="com.springdemo.security.MyUserDetailService"></beans:bean>-->
+    <!--<beans:bean id="authenicationSuccessHandler" class = "com.springdemo.security.handler.MyAuthenicationSuccessHandler"></beans:bean>-->
+    <!--<beans:bean id="authenicationFailHandler" class = "com.springdemo.security.handler.MyAuthenicationFailHandler"></beans:bean>-->
+<!--</beans:beans>-->
+
+
+        <!--3.自定义登录页面，自定义用用户认证管理和资源管理-->
+    <http auto-config="true" use-expressions="true">
+        <headers>
+            <frame-options policy="SAMEORIGIN"/>
+        </headers>
+        <form-login  login-processing-url="/j_security_login"  username-parameter="username" password-parameter="password" login-page="/login" default-target-url="/index" always-use-default-target="true"  authentication-success-handler-ref="authenicationSuccessHandler" authentication-failure-handler-ref="authenicationFailHandler"/>
+        <csrf disabled="true"/>
+        <custom-filter ref="filterSecurityInterceptor" before="FILTER_SECURITY_INTERCEPTOR" ></custom-filter>
+        <logout logout-success-url="/login" logout-url="/logout"/>
+        <access-denied-handler ref = "myAccessDeniedHandler"></access-denied-handler>
+    </http>
+
+
+    <beans:bean id = "filterSecurityInterceptor" class = "org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+        <beans:property name="authenticationManager"  ref="myAuthenticationManager"></beans:property>
+        <beans:property name="accessDecisionManager"  ref="myAcessDecisionManager"></beans:property>
+        <beans:property name="securityMetadataSource"  ref="myFilterInvocationSecurityMetadataSource"></beans:property>
+    </beans:bean>
+
+
+    <authentication-manager id = "myAuthenticationManager">
+        <authentication-provider user-service-ref="myUserDetailService">
+        </authentication-provider>
+    </authentication-manager>
+
+    <beans:bean id = "myUserDetailService" class="com.springdemo.security.MyUserDetailService"></beans:bean>
+    <beans:bean id="authenicationSuccessHandler" class = "com.springdemo.security.handler.MyAuthenicationSuccessHandler"></beans:bean>
+    <beans:bean id="authenicationFailHandler" class = "com.springdemo.security.handler.MyAuthenicationFailHandler"></beans:bean>
+    <beans:bean id = "myAcessDecisionManager" class = "com.springdemo.security.MyAcessDecisionManager"></beans:bean>
+    <beans:bean id = "myFilterInvocationSecurityMetadataSource" class = "com.springdemo.security.MyFilterInvocationSecurityMetadataSource"></beans:bean>
+    <beans:bean id = "myAccessDeniedHandler" class = "com.springdemo.security.handler.MyAccessDeniedHandler"></beans:bean>
+</beans:beans>
